@@ -1,0 +1,17 @@
+NAME
+  txt2man
+
+DESCRIPTION
+  Txt2man converts flat ASCII text to man page format. It is a shell
+  script using gnu awk, that should run on any Unix like system.
+
+  help: txt2man -h
+
+INSTALL
+      make install	(to install under /usr/local)
+  or
+      make install prefix=path
+
+Send comments, suggestions and bug reports to mvertes@free.fr
+
+-- Marc Vertes
