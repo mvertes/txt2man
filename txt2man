@@ -140,7 +140,10 @@ BEGIN {print head}
 		in_bd = 0
 		print ".fam T\n.fi"
 	}
-	if (section == "SYNOPSIS") print ".fam T\n.fi"
+	if (section == "SYNOPSIS") { 
+		print ".fam T\n.fi"
+		type["SYNOPSIS"] = ""
+	}
 	print ".SH " $0
 	section = $0
 	if (section == "SYNOPSIS") print ".nf\n.fam C"
@@ -174,10 +177,18 @@ in_bd == 1 {				# In example display block
 }
 section == "NAME" { $1 = "\\fB" $1; sub(/ \- /, " \\fP- ") }
 section == "SYNOPSIS" {			# Identify arguments of fcts and cmds
-	if (index($0, "(") == 0 && index($0, ")") == 0) {	# Line is a command line
-		b = $1
-		sub(/^\*/, "", b)
-		subwords["\\<" b "\\>"] = "\\fB" b "\\fP"
+	if (type["SYNOPSIS"] == "") {
+		if (index($0, "(") == 0 && index($0, ")") == 0)
+			type["SYNOPSIS"] = "cmd"
+		else
+			type["SYNOPSIS"] = "fct"
+	}
+	if (type["SYNOPSIS"] == "cmd") {	# Line is a command line
+		if ($1 !~ /^\[/) {
+			b = $1
+			sub(/^\*/, "", b)
+			subwords["\\<" b "\\>"] = "\\fB" b "\\fP"
+		}
 		for (i = 2; i <= NF; i++) {
 			a = $i
 			gsub(/[\[\]\|]/, "", a)
