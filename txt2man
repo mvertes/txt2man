@@ -7,7 +7,8 @@ NAME
   txt2man - convert flat ASCII text to man page format
 
 SYNOPSIS
-  txt2man [-hpTX] [-t mytitle] [-P pname] [-r rel] [ifile] 
+  txt2man [-hpTX] [-t mytitle] [-P pname] [-r rel] [-s sect] 
+          [-v vol] [ifile] 
 
 DESCRIPTION
   txt2man converts the input text into nroff/troff standard man(7)
@@ -16,12 +17,12 @@ DESCRIPTION
   (sections 2, 3), with the ability to recognize and format command and
   function names, flags, types and arguments.
 
-  txt2man is also able to recognize and format sections, paragraphs, lists
-  (standard, numbered, description, nested), cross references and literal
-  display blocks.
+  txt2man is also able to recognize and format sections, paragraphs,
+  lists (standard, numbered, description, nested), cross references and
+  literal display blocks.
 
-  If input file ifile is omitted, standard input is taken as
-  argument. Result is displayed on standard output.
+  If input file ifile is omitted, standard input is used. Result is
+  displayed on standard output.
 
   Here is how text patterns are recognized and processed:
 
@@ -70,6 +71,8 @@ OPTIONS
   -p          Probe title, section name and volume.
   -t mytitle  Set mytitle as title of generated man page.
   -r rel      Set rel as project name and release.
+  -s sect     Set sect as section in heading, ususally a value from 1 to 8.
+  -v vol      Set vol as volume name, i.e. "Unix user 's manual".
   -T          Text result previewing using PAGER, usually more(1).
   -X          X11 result previewing using gxditview(1).
 
@@ -82,12 +85,21 @@ EXAMPLE
 
       $ txt2man -h | txt2man -T
 
+HINTS
+  To obtain an overall good formating of output document, keep paragraphs
+  indented correctly, and not starting in column 1. If you have unwanted
+  bold sections, search for multiple spaces between words, which are
+  used to identify a tag list (term followed by a description). Choose
+  also carefully the name of command line or function parameters, as
+  they will be emphasized each time they are encountered in the document.
+
 SEE ALSO
   man(1), mandoc(7), rman(1), groff(1), more(1), gxditview(1), troff(1).
 
 BUGS
-  Automatic probe (-p option) works only if input is a regular file (i.e.
+  - Automatic probe (-p option) works only if input is a regular file (i.e.
   not stdin).
+  - No support for sub-sections.
 
 AUTHOR
   mvertes@cimai.com (Marc Vertes)
@@ -101,7 +113,7 @@ section=
 title=untitled
 doprobe=
 post=cat
-while getopts :hpTXr:s:t:P: opt
+while getopts :hpTXr:s:t:v:P: opt
 do
 	case $opt in
 	r) rel=$OPTARG;;
@@ -133,8 +145,11 @@ fi
 head=".TH $title $section \"$(date +'%B %d, %Y')\" \"$rel\" \"$volume\""
 
 expand $* | 		# All tabs converted to spaces
-awk -v head="$head" '	# gawk is needed because use of non standard regexp 
+gawk -v head="$head" '	# gawk is needed because use of non standard regexp 
 BEGIN {print head}
+{ 
+	sub(/\.\.\./, "\\.\\.\\.")
+}
 /^[A-Z_0-9][A-Z_0-9]/ {		# Section header
 	if (in_bd == 1) {
 		in_bd = 0
@@ -178,7 +193,8 @@ in_bd == 1 {				# In example display block
 section == "NAME" { $1 = "\\fB" $1; sub(/ \- /, " \\fP- ") }
 section == "SYNOPSIS" {			# Identify arguments of fcts and cmds
 	if (type["SYNOPSIS"] == "") {
-		if (index($0, "(") == 0 && index($0, ")") == 0)
+		if (index($0, "(") == 0 && index($0, ")") == 0 &&
+		    index($0, "#include") == 0)
 			type["SYNOPSIS"] = "cmd"
 		else
 			type["SYNOPSIS"] = "fct"
@@ -206,6 +222,7 @@ section == "SYNOPSIS" {			# Identify arguments of fcts and cmds
 }
 {
 	for (i = 1; i <= NF; i++) {	# identify func calls and cross refs
+		while ($i  ~ /\w\.\w/) sub(/\./, "_dOt_", $i)	# protect dots inside words
 		b = $i
 		sub(/^\*/, "", b)
 		if ((a = index(b, ")(")) > 0) {
@@ -218,7 +235,8 @@ section == "SYNOPSIS" {			# Identify arguments of fcts and cmds
 		}
 	}
 	for (i in subwords) gsub(i, subwords[i])	# word attributes
-	gsub(/\B\-+\w+(\-\w+)*/, "\\fB&\\fP")		# options
+	gsub(/\B\-+\w+(\-\w+)*/, "\\fB&\\fP")		# shell options
+	gsub(/_dOt_/, ".") 				# unprotect dots inside words
 
 	if (match($0, /[^ ]  +/) > 0) {			# tag list item
 		adjust_indent()
