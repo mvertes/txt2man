@@ -1,0 +1,6 @@
+txt2man-1.4.7
+* fix gawk --lint warnings (from Eric Moors)
+* fix a warning for an escape sequence (from Juergen Daubert)
+
+txt2man-1.4.6
+Changelog starts from here!
