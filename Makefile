@@ -1,6 +1,7 @@
 prefix ?= /usr/local
 
 install: txt2man.1
+	mkdir -p $(prefix)/bin $(prefix)/man/man1
 	cp -p txt2man $(prefix)/bin/
 	cp -p txt2man.1 $(prefix)/man/man1
 

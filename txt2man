@@ -18,7 +18,7 @@ test "$HOME" = ~ || exec ksh $0 "$@"    # try ksh if sh too old (not yet POSIX)
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 # 02111-1307, USA.
 
-# txt2man-1.4.7
+# txt2man-1.4.8
 
 usage()
 {
@@ -178,7 +178,10 @@ BEGIN {
 	}
 	for (k in avar) delete avar[k]
 }
-{ sub(/\.\.\./, "\\.\\.\\.") }
+{ 
+	sub(/\.\.\./, "\\.\\.\\.")	# to avoid some side effects in regexp
+	sub(/^ +$/,"") 			# remove spaces in empty lines
+}
 /^[[:upper:][:space:]]+$/ {		# Section header
 	if ((in_bd + 0) == 1) {
 		in_bd = 0
@@ -254,8 +257,8 @@ section == "SYNOPSIS" {			# Identify arguments of fcts and cmds
 	}
 }
 {
+	while ($0  ~ /\w\.\w/) sub(/\./, "_dOt_")	# protect dots inside words
 	for (i = 1; i <= NF; i++) {	# identify func calls and cross refs
-		while ($i  ~ /\w\.\w/) sub(/\./, "_dOt_", $i)	# protect dots inside words
 		b = $i
 		sub(/^\*/, "", b)
 		if ((a = index(b, ")(")) > 3) {

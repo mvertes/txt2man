@@ -1,6 +1,13 @@
-txt2man-1.4.7
+txt2man-1.4.8	07-jul-2003
+
+* txt2man: fix a bug in tag list parsing (bug discovered by Fredrik Steen)
+* txt2man: fix a bug in parsing spaces in empty lines
+* Makefile: Create install target directories, if not there
+
+txt2man-1.4.7	06-jan-2003
+
 * fix gawk --lint warnings (from Eric Moors)
 * fix a warning for an escape sequence (from Juergen Daubert)
 
-txt2man-1.4.6
+txt2man-1.4.6	16-dec-2002
 Changelog starts from here!
