@@ -5,7 +5,7 @@ man() {
 NAME
   src2man - extract man pages from source files.
 SYNOPSIS
-  src2man [-n][-r release] [srcfile ...]
+  src2man [-n][-v volume][-r release] [srcfile ...]
 DESCRIPTION
   src2man scans source file srcfile. Only C source files are supported
   for now. Comments blocks starting by "/** num", where num is a section
@@ -19,9 +19,16 @@ DESCRIPTION
   If the next line after a comment block is a C function prototype, then a
   "SYNOPSIS" section will be filled using that prototype. This avoids to
   duplicate the prototype in the comment block.
+
+  The best place for code documentation is in the source file, where the body is
+  implemented, not the header file which only contains the prototype. src2man
+  automatically searches for the presence of a prototype in the corresponding
+  header file, and if found, will print a "#include" statement in the synopsis.
 OPTIONS
   -n		No man page is created. The name of the manpages that would
   		be created are printed.
+  -p volume   Specify the name of the volume to be printed in center header
+  		of generated manpages.
   -r release	Specify the project and release number for the generated
 		manpage.
 EXAMPLE
@@ -49,11 +56,12 @@ EOT
 
 nogen=0
 release=unknown
-while getopts :hnr: opt
+while getopts :hnr:v: opt
 do
 	case $opt in
 	n) nogen=1;;
-	r) release=$OPTARG;;
+	v) volume="$OPTARG";;
+	r) release="$OPTARG";;
 	*) man; exit;;
 	esac
 done
@@ -63,26 +71,51 @@ shift $(($OPTIND - 1))
 # Extract manpages from source files. Man page content is enclosed in
 # commment blocks starting by "/** sectnum"
 #
-awk -v release="$release" -v nogen=$nogen '
+awk -v release="$release" -v volume="$volume" -v nogen=$nogen '
 /\/\*\* [0-9]/ {
 	sect = $2
 	getline
 	sub(/^ \* */, "  ")
 	title = $1
 	name = $0
+	inc = FILENAME
+	sub(/.[cS]$/, ".h", inc)
+	found = ""
+	grep_cmd = "test -f " inc " && grep -wq " title "  " inc " \
+		   2>/dev/null && echo ok || echo nok"
+	grep_cmd | getline found
+	# description section extraction.
+	in_synop = 0
+	synop = ""
 	while (getline) {
 		if ($0 ~ /^ *\*\//)
 			break
 		sub(/^ \* /, "")
 		sub(/^ \*/, "")
-		desc = desc (desc ? "\n" : "") $0
+		if ($1 ~ /^[A-Z ]+$/ && $1 != "SYNOPSIS")
+			in_synop = 0
+		if ($1 == "SYNOPSIS") {
+			in_synop = 1
+			continue
+		}
+		if ($1 == "DESCRIPTION")
+			continue
+		if (in_synop)
+			synop = synop (synop ? "\n" : "") $0
+		else
+			desc = desc (desc ? "\n" : "") $0
 	}
+	# prototype extraction for synopsis.
 	while (getline) {
+		if (synop)
+			break
 		sub(/^[ \t]*/, "")
 		synop = synop (synop ? "\n" : "") $0
 		if ($0 ~/\)[ \t{}\;]*$/) {
 			sub(/{[^}]}/, "", synop)
 			sub(/[ \t]*$/, "", synop)
+			if (found == "ok")
+				synop = "#include \"" inc "\"\n" synop
 			if (synop !~ /\;$/) 
 				synop = synop ";"
 			break
@@ -99,7 +132,8 @@ awk -v release="$release" -v nogen=$nogen '
 	}
 	print "NAME\n" name (synop ? "\nSYNOPSIS\n  " synop : "") \
 	      "\nDESCRIPTION\n" desc "\nFILE\n  " FILENAME | \
-	      "txt2man -r " release " -s " sect " -t " title " > " title "." sect
+	      "txt2man -v \"" volume "\" -r " release " -s " sect \
+	      " -t " title " > " title "." sect
 	name = synop = desc = sect = ""
 }
 ' $*

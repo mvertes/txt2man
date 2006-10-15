@@ -61,6 +61,8 @@ do
 done
 shift $(($OPTIND - 1))
 
+[[ $1 ]] || set -- $(while read; do echo $REPLY; done)
+
 [[ $outfile ]] && post="$post >$outfile"
 
 {
