@@ -1,0 +1,105 @@
+#!/bin/sh
+
+man() {
+	cat << \EOT
+NAME
+  src2man - extract man pages from source files.
+SYNOPSIS
+  src2man [-n][-r release] [srcfile ...]
+DESCRIPTION
+  src2man scans source file srcfile. Only C source files are supported
+  for now. Comments blocks starting by "/** num", where num is a section
+  number, are converted into a man file, using txt2man(1).
+
+  The first line of the comment block must contain the name of the manpage,
+  usually the function name, followed by a "-" and a short description.
+  The following lines are the "DESCRIPTION" section content, except if they
+  are in upper case, in which case they define a new section.
+
+  If the next line after a comment block is a C function prototype, then a
+  "SYNOPSIS" section will be filled using that prototype. This avoids to
+  duplicate the prototype in the comment block.
+OPTIONS
+  -n		No man page is created. The name of the manpages that would
+  		be created are printed.
+  -r release	Specify the project and release number for the generated
+		manpage.
+EXAMPLE
+  The following example displays C code and comments to generate a manpage
+  foobar.3:
+
+     /** 3
+      * foobar - a sample dummy function
+      * This line is now the first of the description section.
+      * Note that function parameters parm1 and parm2 are highlighted
+      * in the generated man page.
+      */
+     int foobar(char *parm1, int parm2)
+     {
+     	...
+	return 0;
+     }
+
+SEE ALSO
+  txt2man(1), bookman(1).
+AUTHOR
+  Marc Vertes <mvertes@free.fr>
+EOT
+}
+
+nogen=0
+release=unknown
+while getopts :hnr: opt
+do
+	case $opt in
+	n) nogen=1;;
+	r) release=$OPTARG;;
+	*) man; exit;;
+	esac
+done
+shift $(($OPTIND - 1))
+
+#
+# Extract manpages from source files. Man page content is enclosed in
+# commment blocks starting by "/** sectnum"
+#
+awk -v release="$release" -v nogen=$nogen '
+/\/\*\* [0-9]/ {
+	sect = $2
+	getline
+	sub(/^ \* */, "  ")
+	title = $1
+	name = $0
+	while (getline) {
+		if ($0 ~ /^ *\*\//)
+			break
+		sub(/^ \* /, "")
+		sub(/^ \*/, "")
+		desc = desc (desc ? "\n" : "") $0
+	}
+	while (getline) {
+		sub(/^[ \t]*/, "")
+		synop = synop (synop ? "\n" : "") $0
+		if ($0 ~/\)[ \t{}\;]*$/) {
+			sub(/{[^}]}/, "", synop)
+			sub(/[ \t]*$/, "", synop)
+			if (synop !~ /\;$/) 
+				synop = synop ";"
+			break
+		}
+		if ($0 ~/^\/\*\* [0-9]/ || $0 ~ /^#/) {
+			synop = ""
+			break
+		}
+	}
+	print title "." sect > "/dev/stderr"
+	if (nogen) {
+		name = synop = desc = sect = ""
+		next
+	}
+	print "NAME\n" name (synop ? "\nSYNOPSIS\n  " synop : "") \
+	      "\nDESCRIPTION\n" desc "\nFILE\n  " FILENAME | \
+	      "txt2man -r " release " -s " sect " -t " title " > " title "." sect
+	name = synop = desc = sect = ""
+}
+' $*

@@ -1,3 +1,10 @@
+txt2man-1.5	16-oct-2006
+
+* txt2man: fix indentation.
+* bookman: new command to generate a book from manpages.
+* src2man: new command to extract manpages from source files.
+* Makefile: update and fix rules.
+
 txt2man-1.4.8	07-jul-2003
 
 * txt2man: fix a bug in tag list parsing (bug discovered by Fredrik Steen)

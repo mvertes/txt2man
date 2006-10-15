@@ -1,0 +1,111 @@
+#!/bin/sh
+
+# Generate a book from man pages.
+
+man() {
+	cat << \EOT
+NAME
+  bookman - Generate a book from man pages
+SYNOPSIS
+  bookman [-pPxn] [-o outfile] [-a author] [-d date] [-r release]
+  [-t title] [-c coverfile] [manfile]
+DESCRIPTION
+  bookman compiles a set of man pages files specified by manfile
+  arguments, or if no manfile is given, filenames are read from standard
+  input.
+OPTIONS
+  -p		PDF output format.
+  -P		Postscript output format.
+  -x		X11 previewing, using gxditview(1).
+  -n		no format, output is direct gtroff intermediate format.
+  -o outfile    Output in file outfile. Default is standard output.
+  -a author	Set the author, on the cover page.
+  -d date	Sets the date on the cover page.
+  -r release	Sets the release on the cover page.
+  -t title	Sets the title on the cover page.
+  -c coverfile	Uses the file coverfile to generate the cover page,
+		i.e. all pages preceding the table of content. coverfile
+		must be in groff_ms(7) format.
+
+EXAMPLE
+  To build a reference manual from section 2 man, do:
+
+    $ bookman -p -t 'Unix Reference Manual' /usr/man/man2/* >book.pdf
+
+SEE ALSO
+  man(1), mandoc(7), groff_ms(7), groff(1), troff(1), grops(1),
+  gxditview(1), ps2pdf(1).
+AUTHOR
+  Marc Vertes <mvertes@free.fr>
+EOT
+}
+
+post="grops"
+
+while getopts :a:c:d:mno:pPr:t:x opt
+do
+	case $opt in
+	a) author="$OPTARG";;
+	c) cover="$OPTARG";;
+	d) date="$OPTARG";;
+	m) man; exit;;
+	n) post="cat";;
+	o) outfile="$OPTARG";;
+	p) post="grops | ps2pdf -";;
+	P) post=grops;;
+	x) post="gxditview -";;
+	r) release="$OPTARG";;
+	t) title="$OPTARG";;
+	*) man; exit;;
+	esac
+done
+shift $(($OPTIND - 1))
+
+[[ $outfile ]] && post="$post >$outfile"
+
+{
+	# Compute table of content from postscript output.
+	# Generate output in gtroff intermediate format, so
+	# it can be merged with content.
+	{
+		[[ -f $cover ]] && cat $cover || {
+			printf ".DA \"\"\n.TL\n%s\n" "$title"
+			printf ".AU\n%s\n.AB no\n.AE\n" "$author"
+		}
+		for f
+		do
+			case $f in
+			*.Z|*.gz) zcat $f;;
+			*.bz2)    bzcat $f;;
+			*)        cat $f;;
+			esac
+		done | groff -man -rC1 -Tps | awk '
+		$1 == "%%Page:" {page = $2}
+		/%%EndPageSetup/ {
+			getline l; getline; $0 = l $0
+			# extract first word (disgard everything
+			# outside braces).
+			sub(/^[^\(]*\(/, "")
+			gsub(/\)[^\(]*\(/, "")
+			sub(/\)[^\(]*/, "")
+			sub(/\\\(.*/, "")
+			if (name != $0) {
+				print (page == 1) ? ".XS 1" : ".XA " page
+				print $0
+			}
+			name = $0
+		}
+		END {print ".XE"; print ".PX"}'
+	} | groff -Z -ms | head --lines=-1
+
+	# Output content, in gtroff intermediate format.
+	for f
+	do
+		case $f in
+		*.Z|*.gz) zcat $f;;
+		*.bz2)    bzcat $f;;
+		*)        cat $f;;
+		esac
+	done | groff -Z -man -rC1 | awk 'NR >3'
+
+} | eval $post
