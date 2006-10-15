@@ -89,6 +89,7 @@ shift $(($OPTIND - 1))
 			# outside braces).
 			sub(/^[^\(]*\(/, "")
 			gsub(/\)[^\(]*\(/, "")
+			gsub(/\\214/, "fi")
 			sub(/\)[^\(]*/, "")
 			sub(/\\\(.*/, "")
 			if (name != $0) {

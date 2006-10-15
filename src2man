@@ -106,25 +106,24 @@ awk -v release="$release" -v volume="$volume" -v nogen=$nogen '
 			desc = desc (desc ? "\n" : "") $0
 	}
 	# prototype extraction for synopsis.
-	while (getline) {
-		if (synop)
-			break
-		sub(/^[ \t]*/, "")
-		synop = synop (synop ? "\n" : "") $0
-		if ($0 ~/\)[ \t{}\;]*$/) {
-			sub(/{[^}]}/, "", synop)
-			sub(/[ \t]*$/, "", synop)
-			if (found == "ok")
-				synop = "#include \"" inc "\"\n" synop
-			if (synop !~ /\;$/) 
-				synop = synop ";"
-			break
+	if (! synop)
+		while (getline) {
+			sub(/^[ \t]*/, "")
+			synop = synop (synop ? "\n" : "") $0
+			if ($0 ~/\)[ \t{}\;]*$/) {
+				sub(/{[^}]}/, "", synop)
+				sub(/[ \t]*$/, "", synop)
+				if (found == "ok")
+					synop = "#include \"" inc "\"\n" synop
+				if (synop !~ /\;$/) 
+					synop = synop ";"
+				break
+			}
+			if ($0 ~/^\/\*\* [0-9]/ || $0 ~ /^#/) {
+				synop = ""
+				break
+			}
 		}
-		if ($0 ~/^\/\*\* [0-9]/ || $0 ~ /^#/) {
-			synop = ""
-			break
-		}
-	}
 	print title "." sect > "/dev/stderr"
 	if (nogen) {
 		name = synop = desc = sect = ""
