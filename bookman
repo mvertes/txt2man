@@ -8,7 +8,7 @@ NAME
   bookman - Generate a book from man pages
 SYNOPSIS
   bookman [-pPxn] [-o outfile] [-a author] [-d date] [-r release]
-  [-t title] [-c coverfile] [manfile]
+  [-t title] [-v volume] [-c coverfile] [manfile]
 DESCRIPTION
   bookman compiles a set of man pages files specified by manfile
   arguments, or if no manfile is given, filenames are read from standard
@@ -20,9 +20,10 @@ OPTIONS
   -n		no format, output is direct gtroff intermediate format.
   -o outfile    Output in file outfile. Default is standard output.
   -a author	Set the author, on the cover page.
-  -d date	Sets the date on the cover page.
-  -r release	Sets the release on the cover page.
-  -t title	Sets the title on the cover page.
+  -d date	Set the date on the cover page.
+  -r release	Set the book name and release on the cover page.
+  -t title	Set the title on the cover page.
+  -v volume	Specify the name of the volume.
   -c coverfile	Uses the file coverfile to generate the cover page,
 		i.e. all pages preceding the table of content. coverfile
 		must be in groff_ms(7) format.
@@ -30,7 +31,8 @@ OPTIONS
 EXAMPLE
   To build a reference manual from section 2 man, do:
 
-    $ bookman -p -t 'Unix Reference Manual' /usr/man/man2/* >book.pdf
+    $ cd /usr/man/man2
+    $ bookman -p -t 'Unix Reference Manual' * >book.pdf
 
 SEE ALSO
   man(1), mandoc(7), groff_ms(7), groff(1), troff(1), grops(1),
@@ -41,8 +43,9 @@ EOT
 }
 
 post="grops"
+release=unknow
 
-while getopts :a:c:d:mno:pPr:t:x opt
+while getopts :a:c:d:mno:pPr:t:v:x opt
 do
 	case $opt in
 	a) author="$OPTARG";;
@@ -56,10 +59,12 @@ do
 	x) post="gxditview -";;
 	r) release="$OPTARG";;
 	t) title="$OPTARG";;
+	v) volume="$OPTARG";;
 	*) man; exit;;
 	esac
 done
 shift $(($OPTIND - 1))
+date=${date:-$(date +'%d %B %Y')}
 
 [[ $1 ]] || set -- $(while read; do echo $REPLY; done)
 
@@ -71,13 +76,18 @@ shift $(($OPTIND - 1))
 	# it can be merged with content.
 	{
 		[[ -f $cover ]] && cat $cover || {
-			printf ".DA \"\"\n.TL\n%s\n" "$title"
+			printf ".af %% i\n.P1"
+			printf ".OH ||%s||\n" "$volume"
+			printf ".EH ||%s||\n" "$volume"
+			printf ".OF |%s|%s|%%|\n" "$release" "$date"
+			printf ".EF |%s|%s|%%|\n" "$release" "$date"
+			printf ".TL\n%s\n" "$title"
 			printf ".AU\n%s\n.AB no\n.AE\n" "$author"
 		}
 		for f
 		do
 			case $f in
-			*.Z|*.gz) zcat $f;;
+			*.Z|*.gz) zcat$f;;
 			*.bz2)    bzcat $f;;
 			*)        cat $f;;
 			esac
@@ -90,6 +100,7 @@ shift $(($OPTIND - 1))
 			sub(/^[^\(]*\(/, "")
 			gsub(/\)[^\(]*\(/, "")
 			gsub(/\\214/, "fi")
+			gsub(/\\215/, "fl")
 			sub(/\)[^\(]*/, "")
 			sub(/\\\(.*/, "")
 			if (name != $0) {

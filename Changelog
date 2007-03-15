@@ -1,3 +1,13 @@
+txt2man-1.5.3	15-mar-2007
+
+* bookman: better handling of header and footers of cover page.
+* src2man: date can now be set.
+* txt2man: date can now be set. Better handling of C function prototypes.
+
+txt2man-1.5.2	28-feb-2007
+
+* txt2man: fix synopsis handling.
+
 txt2man-1.5.1	25-oct-2006
 
 * src2man: search if the function prototype is defined in corresponding

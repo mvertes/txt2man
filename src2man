@@ -5,7 +5,7 @@ man() {
 NAME
   src2man - extract man pages from source files.
 SYNOPSIS
-  src2man [-n][-v volume][-r release] [srcfile ...]
+  src2man [-n][-d date][-v volume][-r release] [srcfile ...]
 DESCRIPTION
   src2man scans source file srcfile. Only C source files are supported
   for now. Comments blocks starting by "/** num", where num is a section
@@ -25,11 +25,12 @@ DESCRIPTION
   automatically searches for the presence of a prototype in the corresponding
   header file, and if found, will print a "#include" statement in the synopsis.
 OPTIONS
+  -d date	Set the date of the man pages. Defaults to current date.
   -n		No man page is created. The name of the manpages that would
   		be created are printed.
-  -p volume   Specify the name of the volume to be printed in center header
+  -v volume	Specify the name of the volume to be printed in center header
   		of generated manpages.
-  -r release	Specify the project and release number for the generated
+  -r release	Specify the project name and release number for the generated
 		manpage.
 EXAMPLE
   The following example displays C code and comments to generate a manpage
@@ -56,9 +57,10 @@ EOT
 
 nogen=0
 release=unknown
-while getopts :hnr:v: opt
+while getopts :d:hnr:v: opt
 do
 	case $opt in
+	d) date="$OPTARG";;
 	n) nogen=1;;
 	v) volume="$OPTARG";;
 	r) release="$OPTARG";;
@@ -66,6 +68,7 @@ do
 	esac
 done
 shift $(($OPTIND - 1))
+date=${date:-$(date +'%d %B %Y')}
 
 #
 # Extract manpages from source files. Man page content is enclosed in
@@ -115,7 +118,7 @@ awk -v release="$release" -v volume="$volume" -v nogen=$nogen '
 				sub(/[ \t]*$/, "", synop)
 				if (found == "ok")
 					synop = "#include \"" inc "\"\n" synop
-				if (synop !~ /\;$/) 
+				if (synop !~ /\;$/)
 					synop = synop ";"
 				break
 			}
@@ -131,7 +134,7 @@ awk -v release="$release" -v volume="$volume" -v nogen=$nogen '
 	}
 	print "NAME\n" name (synop ? "\nSYNOPSIS\n  " synop : "") \
 	      "\nDESCRIPTION\n" desc "\nFILE\n  " FILENAME | \
-	      "txt2man -v \"" volume "\" -r " release " -s " sect \
+	      "txt2man -d \"$date\" -v \"" volume "\" -r " release " -s " sect \
 	      " -t " title " > " title "." sect
 	name = synop = desc = sect = ""
 }
