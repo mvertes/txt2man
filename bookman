@@ -1,6 +1,24 @@
 #!/bin/sh
-
 # Generate a book from man pages.
+
+# Copyright (C) 2006 Marc Vertes
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# release 1.5.4
 
 man() {
 	cat << \EOT
@@ -43,7 +61,6 @@ EOT
 }
 
 post="grops"
-release=unknow
 
 while getopts :a:c:d:mno:pPr:t:v:x opt
 do
@@ -76,7 +93,7 @@ date=${date:-$(date +'%d %B %Y')}
 	# it can be merged with content.
 	{
 		[[ -f $cover ]] && cat $cover || {
-			printf ".af %% i\n.P1"
+			printf ".af %% i\n.P1\n"
 			printf ".OH ||%s||\n" "$volume"
 			printf ".EH ||%s||\n" "$volume"
 			printf ".OF |%s|%s|%%|\n" "$release" "$date"

@@ -1,4 +1,24 @@
 #!/bin/sh
+# Extract manpages from C source files.
+
+# Copyright (C) 2006 Marc Vertes
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# release 1.5.4
 
 man() {
 	cat << \EOT
@@ -20,10 +40,11 @@ DESCRIPTION
   "SYNOPSIS" section will be filled using that prototype. This avoids to
   duplicate the prototype in the comment block.
 
-  The best place for code documentation is in the source file, where the body is
-  implemented, not the header file which only contains the prototype. src2man
-  automatically searches for the presence of a prototype in the corresponding
-  header file, and if found, will print a "#include" statement in the synopsis.
+  The best place for code documentation is in the source file, where
+  the body is implemented, not the header file which only contains
+  the prototype. src2man automatically searches for the presence of a
+  prototype in the corresponding header file, and if found, will print a
+  "#include" statement in the synopsis.
 OPTIONS
   -d date	Set the date of the man pages. Defaults to current date.
   -n		No man page is created. The name of the manpages that would
@@ -134,8 +155,9 @@ awk -v release="$release" -v volume="$volume" -v nogen=$nogen '
 	}
 	print "NAME\n" name (synop ? "\nSYNOPSIS\n  " synop : "") \
 	      "\nDESCRIPTION\n" desc "\nFILE\n  " FILENAME | \
-	      "txt2man -d \"$date\" -v \"" volume "\" -r " release " -s " sect \
-	      " -t " title " > " title "." sect
+	      "{ echo .\\\" Extracted by src2man from " FILENAME "; \
+	      txt2man -d \"$date\" -v \"" volume "\" -r " release \
+	      " -s " sect " -t " title "; } >" title "." sect
 	name = synop = desc = sect = ""
 }
 ' $*

@@ -18,7 +18,7 @@ test "$HOME" = ~ || exec ksh $0 "$@"    # try ksh if sh too old (not yet POSIX)
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 # 02111-1307, USA.
 
-# txt2man-1.5
+# release 1.5.4
 
 usage()
 {

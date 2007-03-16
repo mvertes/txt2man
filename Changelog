@@ -1,3 +1,9 @@
+txt2man-1.5.4	16-mar-2007
+
+* bookman: Added copyright
+* src2man: Added copyright. Fix cover page handling. Add origin
+  comment in generated manpages.
+
 txt2man-1.5.3	15-mar-2007
 
 * bookman: better handling of header and footers of cover page.
