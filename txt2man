@@ -18,7 +18,7 @@ test "$HOME" = ~ || exec ksh $0 "$@"    # try ksh if sh too old (not yet POSIX)
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 # 02111-1307, USA.
 
-# release 1.5.4
+# release 1.5.5
 
 usage()
 {
@@ -207,8 +207,10 @@ BEGIN {
 		print ".SS" $0
 	sub(/^ +/, "")
 	section = $0
-	if (section == "SYNOPSIS")
+	if (section == "SYNOPSIS") {
 		print ".nf\n.fam C"
+		in_bd = 1
+	}
 	ls = 0		# line start index
 	pls = 0		# previous line start index
 	pnzls = 0	# previous non zero line start index
@@ -238,8 +240,10 @@ BEGIN {
 		ind[0] = ls
 }
 (in_bd + 0) == 1 {
-	# In example display block
-	if (ls != 0 && ls < eoff) {
+	# In block display
+	if (section == "SYNOPSIS")
+		;
+	else if (ls != 0 && ls < eoff) {
 		# End of litteral display block
 		in_bd = 0
 		print ".fam T\n.fi"
@@ -252,11 +256,12 @@ section == "NAME" {
 section == "SYNOPSIS" {
 	# Identify arguments of fcts and cmds
 	if (type["SYNOPSIS"] == "") {
-		if (index($0, "(") == 0 && index($0, ")") == 0 &&
-		    index($0, "#include") == 0)
-			type["SYNOPSIS"] = "cmd"
-		else
+		if ($0 ~ /\(/)
 			type["SYNOPSIS"] = "fct"
+		else if ($1 == "struct" || $2 == "struct")
+			type["SYNOPSIS"] = "struct"
+		else if ($1 && $1 !~ /^#|typedef|struct|union|enum/)
+			type["SYNOPSIS"] = "cmd"
 	}
 	if (type["SYNOPSIS"] == "cmd") {
 		# Line is a command line
@@ -271,7 +276,7 @@ section == "SYNOPSIS" {
 			if (a ~ /^[^\-]/)
 				subwords["\\<" a "\\>"] = "\\fI" a "\\fP"
 		}
-	} else {
+	} else if (type["SYNOPSIS"] == "fct") {
 		# Line is a C function definition
 		if ($1 == "typedef") {
 			if ($0 !~ /\(\*/)
@@ -313,6 +318,11 @@ section == "SYNOPSIS" {
 	# unprotect dots inside words
 	gsub(/_dOt_/, ".")
 
+	if (section == "SYNOPSIS") {
+		sub(/^  /, "")
+		print
+		next
+	}
 	if (match($0, /[^ ]  +/) > 0) {
 		# tag list item
 		adjust_indent()

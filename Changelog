@@ -1,3 +1,8 @@
+txt2man-1.5.5	21-mar-2007
+
+* txt2man: correct layout of C structures in synopsis
+* src2man: genrate manpages for C types/struct definitions
+
 txt2man-1.5.4	16-mar-2007
 
 * bookman: Added copyright

@@ -18,7 +18,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 # 02111-1307, USA.
 
-# release 1.5.4
+# release 1.5.5
 
 man() {
 	cat << \EOT
@@ -31,20 +31,25 @@ DESCRIPTION
   for now. Comments blocks starting by "/** num", where num is a section
   number, are converted into a man file, using txt2man(1).
 
-  The first line of the comment block must contain the name of the manpage,
-  usually the function name, followed by a "-" and a short description.
-  The following lines are the "DESCRIPTION" section content, except if they
-  are in upper case, in which case they define a new section.
+  The first line of the comment block must contain the name of the
+  manpage, usually the function name, followed by a "-" and a short
+  description.  The following lines are the "DESCRIPTION" section
+  content, except if they are in upper case, in which case they define
+  a new section.
 
-  If the next line after a comment block is a C function prototype, then a
-  "SYNOPSIS" section will be filled using that prototype. This avoids to
-  duplicate the prototype in the comment block.
+  If the next line after a comment block is empty, Then no "SYNOPSIS"
+  section will be generated. Otherwise, src2man will look in the following
+  source lines for a function prototype or a type definion (struct,
+  union, typedef, ...) matching the manpage name, and include it in a
+  "SYNOPSIS" section.  This avoids to duplicate the type or function
+  prototype in the comment block.
 
   The best place for code documentation is in the source file, where
   the body is implemented, not the header file which only contains
   the prototype. src2man automatically searches for the presence of a
   prototype in the corresponding header file, and if found, will print a
   "#include" statement in the synopsis.
+
 OPTIONS
   -d date	Set the date of the man pages. Defaults to current date.
   -n		No man page is created. The name of the manpages that would
@@ -101,6 +106,8 @@ awk -v release="$release" -v volume="$volume" -v nogen=$nogen '
 	getline
 	sub(/^ \* */, "  ")
 	title = $1
+	line1_after_comment = 0
+	in_struct = 0
 	name = $0
 	inc = FILENAME
 	sub(/.[cS]$/, ".h", inc)
@@ -112,8 +119,11 @@ awk -v release="$release" -v volume="$volume" -v nogen=$nogen '
 	in_synop = 0
 	synop = ""
 	while (getline) {
-		if ($0 ~ /^ *\*\//)
+		if ($0 ~ / *\*\//) { # end of comment block
+			sub(/ *\*\//, "")
+			line1_after_comment = 1
 			break
+		}
 		sub(/^ \* /, "")
 		sub(/^ \*/, "")
 		if ($1 ~ /^[A-Z ]+$/ && $1 != "SYNOPSIS")
@@ -129,11 +139,26 @@ awk -v release="$release" -v volume="$volume" -v nogen=$nogen '
 		else
 			desc = desc (desc ? "\n" : "") $0
 	}
-	# prototype extraction for synopsis.
-	if (! synop)
+	# function prototype or struct extraction for synopsis.
+	if (! synop) {
 		while (getline) {
-			sub(/^[ \t]*/, "")
+			if (line1_after_comment) {
+				line1_after_comment = 0
+				if (NF == 0) 
+					break
+				split(name, tname)
+			}
+			if ((!in_struct && $1 == "struct" && $2 == tname[1]) ||
+			    (!in_struct && $2 == "struct" && $3 == tname[1])) {
+			    	in_struct = 1
+				synop = synop (synop ? "\n" : "") $0
+				continue
+			}
 			synop = synop (synop ? "\n" : "") $0
+			if (in_struct) {
+				if ($0 ~ " *" tname[1] "[; ][*]*") break
+				continue
+			}
 			if ($0 ~/\)[ \t{}\;]*$/) {
 				sub(/{[^}]}/, "", synop)
 				sub(/[ \t]*$/, "", synop)
@@ -143,11 +168,8 @@ awk -v release="$release" -v volume="$volume" -v nogen=$nogen '
 					synop = synop ";"
 				break
 			}
-			if ($0 ~/^\/\*\* [0-9]/ || $0 ~ /^#/) {
-				synop = ""
-				break
-			}
 		}
+	}
 	print title "." sect > "/dev/stderr"
 	if (nogen) {
 		name = synop = desc = sect = ""
