@@ -18,7 +18,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 # 02111-1307, USA.
 
-# release 1.5.5
+# release 1.5.6
 
 man() {
 	cat << \EOT
@@ -33,7 +33,7 @@ DESCRIPTION
 
   The first line of the comment block must contain the name of the
   manpage, usually the function name, followed by a "-" and a short
-  description.  The following lines are the "DESCRIPTION" section
+  description. The following lines are the "DESCRIPTION" section
   content, except if they are in upper case, in which case they define
   a new section.
 
@@ -41,7 +41,7 @@ DESCRIPTION
   section will be generated. Otherwise, src2man will look in the following
   source lines for a function prototype or a type definion (struct,
   union, typedef, ...) matching the manpage name, and include it in a
-  "SYNOPSIS" section.  This avoids to duplicate the type or function
+  "SYNOPSIS" section. This avoids to duplicate the type or function
   prototype in the comment block.
 
   The best place for code documentation is in the source file, where
@@ -86,11 +86,11 @@ release=unknown
 while getopts :d:hnr:v: opt
 do
 	case $opt in
-	d) date="$OPTARG";;
-	n) nogen=1;;
-	v) volume="$OPTARG";;
-	r) release="$OPTARG";;
-	*) man; exit;;
+	(d) date="$OPTARG";;
+	(n) nogen=1;;
+	(v) volume="$OPTARG";;
+	(r) release="$OPTARG";;
+	(*) man; exit;;
 	esac
 done
 shift $(($OPTIND - 1))
@@ -101,10 +101,10 @@ date=${date:-$(date +'%d %B %Y')}
 # commment blocks starting by "/** sectnum"
 #
 awk -v release="$release" -v volume="$volume" -v nogen=$nogen '
-/\/\*\* [0-9]/ {
+$1 == "/**" && $2 ~ /^[0-9]/ {
 	sect = $2
 	getline
-	sub(/^ \* */, "  ")
+	sub(/^ *\* */, "  ")
 	title = $1
 	line1_after_comment = 0
 	in_struct = 0
@@ -159,6 +159,10 @@ awk -v release="$release" -v volume="$volume" -v nogen=$nogen '
 				if ($0 ~ " *" tname[1] "[; ][*]*") break
 				continue
 			}
+			if ($0 !~ /\)$/) {
+				getline
+				synop = synop " " $0
+			}
 			if ($0 ~/\)[ \t{}\;]*$/) {
 				sub(/{[^}]}/, "", synop)
 				sub(/[ \t]*$/, "", synop)
@@ -177,7 +181,7 @@ awk -v release="$release" -v volume="$volume" -v nogen=$nogen '
 	}
 	print "NAME\n" name (synop ? "\nSYNOPSIS\n  " synop : "") \
 	      "\nDESCRIPTION\n" desc "\nFILE\n  " FILENAME | \
-	      "{ echo .\\\" Extracted by src2man from " FILENAME "; \
+	      "{ echo '\''.\\\" Extracted by src2man from " FILENAME "'\''; \
 	      txt2man -d \"$date\" -v \"" volume "\" -r " release \
 	      " -s " sect " -t " title "; } >" title "." sect
 	name = synop = desc = sect = ""

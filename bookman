@@ -18,7 +18,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 # 02111-1307, USA.
 
-# release 1.5.5
+# release 1.5.6
 
 man() {
 	cat << \EOT
@@ -65,19 +65,19 @@ post="grops"
 while getopts :a:c:d:mno:pPr:t:v:x opt
 do
 	case $opt in
-	a) author="$OPTARG";;
-	c) cover="$OPTARG";;
-	d) date="$OPTARG";;
-	m) man; exit;;
-	n) post="cat";;
-	o) outfile="$OPTARG";;
-	p) post="grops | ps2pdf -";;
-	P) post=grops;;
-	x) post="gxditview -";;
-	r) release="$OPTARG";;
-	t) title="$OPTARG";;
-	v) volume="$OPTARG";;
-	*) man; exit;;
+	(a) author=$OPTARG;;
+	(c) cover=$OPTARG;;
+	(d) date=$OPTARG;;
+	(m) man; exit;;
+	(n) post=cat;;
+	(o) outfile=$OPTARG;;
+	(p) post='grops | ps2pdf -';;
+	(P) post=grops;;
+	(x) post='gxditview -';;
+	(r) release=$OPTARG;;
+	(t) title=$OPTARG;;
+	(v) volume=$OPTARG;;
+	(*) man; exit;;
 	esac
 done
 shift $(($OPTIND - 1))
@@ -92,7 +92,7 @@ date=${date:-$(date +'%d %B %Y')}
 	# Generate output in gtroff intermediate format, so
 	# it can be merged with content.
 	{
-		[[ -f $cover ]] && cat $cover || {
+		[ -f "$cover" ] && cat "$cover" || {
 			printf ".af %% i\n.P1\n"
 			printf ".OH ||%s||\n" "$volume"
 			printf ".EH ||%s||\n" "$volume"
@@ -104,9 +104,9 @@ date=${date:-$(date +'%d %B %Y')}
 		for f
 		do
 			case $f in
-			*.Z|*.gz) zcat$f;;
-			*.bz2)    bzcat $f;;
-			*)        cat $f;;
+			(*.Z|*.gz) zcat$f;;
+			(*.bz2)    bzcat $f;;
+			(*)        cat $f;;
 			esac
 		done | groff -man -rC1 -Tps | awk '
 		$1 == "%%Page:" {page = $2}
@@ -133,9 +133,9 @@ date=${date:-$(date +'%d %B %Y')}
 	for f
 	do
 		case $f in
-		*.Z|*.gz) zcat $f;;
-		*.bz2)    bzcat $f;;
-		*)        cat $f;;
+		(*.Z|*.gz) zcat $f;;
+		(*.bz2)    bzcat $f;;
+		(*)        cat $f;;
 		esac
 	done | groff -Z -man -rC1 | awk 'NR >3'
 

@@ -1,3 +1,13 @@
+txt2man-1.5.6	16-mar-2011
+
+* txt2man: Better control of 3 letters regexp, by Robin Cornelius.
+* txt2man: Fix header comment generation, by Robin Cornelius.
+* txt2man: Better handle ticks, by Thomas Moschny.
+* src2man: Fix header comment generation.
+* src2man: more robust comment delimiter handling.
+* src2man: support C prototypes with newline after type, by Diego Cena.
+* bookman: Posix shell syntax.
+
 txt2man-1.5.5	21-mar-2007
 
 * txt2man: correct layout of C structures in synopsis
