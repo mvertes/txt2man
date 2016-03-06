@@ -45,6 +45,9 @@ OPTIONS
   -c coverfile	Uses the file coverfile to generate the cover page,
 		i.e. all pages preceding the table of content. coverfile
 		must be in groff_ms(7) format.
+ENVIRONMENT
+  SOURCE_DATE_EPOCH  Unix timestamp that is used for date in header instead
+                     of current date.
 
 EXAMPLE
   To build a reference manual from section 2 man, do:
@@ -81,6 +84,9 @@ do
 	esac
 done
 shift $(($OPTIND - 1))
+if [ -n "$SOURCE_DATE_EPOCH" ]; then
+  date=$(LC_ALL=C date -u -d "@$SOURCE_DATE_EPOCH" +'%d %B %Y')
+fi
 date=${date:-$(date +'%d %B %Y')}
 
 [[ $1 ]] || set -- $(while read; do echo $REPLY; done)

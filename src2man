@@ -58,6 +58,9 @@ OPTIONS
   		of generated manpages.
   -r release	Specify the project name and release number for the generated
 		manpage.
+ENVIRONMENT
+  SOURCE_DATE_EPOCH  Unix timestamp that is used for date in header instead
+                     of current date.
 EXAMPLE
   The following example displays C code and comments to generate a manpage
   foobar.3:
@@ -94,6 +97,9 @@ do
 	esac
 done
 shift $(($OPTIND - 1))
+if [ -n "$SOURCE_DATE_EPOCH" ]; then
+  date=$(LC_ALL=C date -u -d "@$SOURCE_DATE_EPOCH" +'%d %B %Y')
+fi
 date=${date:-$(date +'%d %B %Y')}
 
 #

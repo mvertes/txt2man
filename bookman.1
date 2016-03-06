@@ -62,6 +62,11 @@ Specify the name of the \fIvolume\fP.
 Uses the file \fIcoverfile\fP to generate the cover page,
 i.e. all pages preceding the table of content. \fIcoverfile\fP
 must be in \fBgroff_ms\fP(7) format.
+.SH ENVIRONMENT
+.TP
+.B
+SOURCE_DATE_EPOCH
+Unix timestamp that is used for date in header instead of current date.
 .SH EXAMPLE
 To build a reference manual from section 2 man, do:
 .PP
