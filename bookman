@@ -89,16 +89,16 @@ if [ -n "$SOURCE_DATE_EPOCH" ]; then
 fi
 date=${date:-$(date +'%d %B %Y')}
 
-[[ $1 ]] || set -- $(while read; do echo $REPLY; done)
+[ $1 ] || set -- $(while read REPLY; do echo $REPLY; done)
 
-[[ $outfile ]] && post="$post >$outfile"
+[ $outfile ] && post="$post >$outfile"
 
 {
 	# Compute table of content from postscript output.
 	# Generate output in gtroff intermediate format, so
 	# it can be merged with content.
 	{
-		[ -f "$cover" ] && cat "$cover" || {
+		[ -f $cover ] && cat $cover || {
 			printf ".af %% i\n.P1\n"
 			printf ".OH ||%s||\n" "$volume"
 			printf ".EH ||%s||\n" "$volume"
