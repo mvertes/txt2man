@@ -57,18 +57,18 @@ DESCRIPTION
               by at least 2 blank spaces, even before a new line, if
               definition is too long. Definition will be emphasized
               by default.
-  Bullet list
+  Bullet list  
               Bullet list items are defined by the first word being "-"
               or "*" or "o".
-  Enumerated list
+  Enumerated list  
               The first word must be a number followed by a dot.
-  Literal display blocks
+  Literal display blocks  
               This paragraph type is used to display unmodified text,
               for example source code. It must be separated by a blank
               line and be indented by a TAB. It is primarily used to format
               unmodified source code. It will be printed using fixed font
               whenever possible (troff).
-  Cross references
+  Cross references  
               A cross reference (another man page) is defined by a word
               followed by a number in parenthesis.
 
