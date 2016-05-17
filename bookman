@@ -52,7 +52,7 @@ ENVIRONMENT
 EXAMPLE
   To build a reference manual from section 2 man, do:
 
-    $ cd /usr/man/man2
+    $ cd /usr/share/man/man2
     $ bookman -p -t 'Unix Reference Manual' * >book.pdf
 
 SEE ALSO

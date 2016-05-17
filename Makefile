@@ -7,9 +7,9 @@ MAN1 = src2man.1 txt2man.1 bookman.1
 all: $(MAN1)
 
 install: $(MAN1)
-	mkdir -p $(prefix)/bin $(prefix)/man/man1
+	mkdir -p $(prefix)/bin $(prefix)/share/man/man1
 	cp $(BIN) $(prefix)/bin/
-	cp $(MAN1) $(prefix)/man/man1
+	cp $(MAN1) $(prefix)/share/man/man1
 
 clean:
 	rm -f *.1 *.txt *.ps *.pdf *.html
