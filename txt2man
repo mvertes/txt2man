@@ -111,10 +111,10 @@ EXAMPLES
 
     $ txt2man -h 2>&1 | txt2man -T
 
-  The following command will generate a manpage from txt2man.txt file, used
-  as source code:
+  The following command will generate a manpage level 1 to foo-1.1.0 program,
+  from foo.txt file, used as source code to previously mentioned manpage:
 
-    $ txt2man -d "15 May 2016" -t txt2man -r 1.5.6 -s 1 -v "converts text to man page" txt2man.txt > txt2man.1
+    $ txt2man -d "15 May 2016" -t foo -r foo-1.1.0 -s 1 -v "show stars on screen" foo.txt > foo.1
 HINTS
   To obtain an overall good formatting of output document, keep paragraphs
   indented correctly. If you have unwanted bold sections, search for
