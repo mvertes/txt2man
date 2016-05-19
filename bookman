@@ -89,9 +89,9 @@ if [ -n "$SOURCE_DATE_EPOCH" ]; then
 fi
 date=${date:-$(date +'%d %B %Y')}
 
-[[ $1 ]] || set -- $(while read; do echo $REPLY; done)
+[ $1 ] || set -- $(while read REPLY; do echo "$REPLY"; done)
 
-[[ $outfile ]] && post="$post >$outfile"
+[ $outfile ] && post="$post >$outfile"
 
 {
 	# Compute table of content from postscript output.
