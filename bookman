@@ -110,7 +110,7 @@ date=${date:-$(date +'%d %B %Y')}
 		for f
 		do
 			case $f in
-			(*.Z|*.gz) zcat$f;;
+			(*.Z|*.gz) zcat $f;;
 			(*.bz2)    bzcat $f;;
 			(*)        cat $f;;
 			esac
