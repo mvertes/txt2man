@@ -170,7 +170,7 @@ fi
 if [ -n "$SOURCE_DATE_EPOCH" ]; then
   date=$(LC_ALL=C pdate "@$SOURCE_DATE_EPOCH" +'%d %B %Y')
 fi
-date=${date:-$(LC_ALL=C date +'%d %B %Y')}
+date=${date:-$(LC_ALL=C date -u +'%d %B %Y')}
 
 if test "$doprobe"
 then
