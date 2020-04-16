@@ -151,8 +151,8 @@ do
 	(v) volume=$OPTARG;;
 	(P) sys=$OPTARG;;
 	(p) doprobe=1;;
-	(I) itxt="$OPTARG§$itxt";;
-	(B) btxt=$OPTARG;;
+	(I) itxt="$OPTARGÂ§$itxt";;
+	(B) btxt="$OPTARGÂ§$btxt";;
 	(T) post="groff -mandoc -Tlatin1 | ${PAGER:-more}";;
 	(X) post="groff -mandoc -X";;
 	(*) usage; exit;;
@@ -191,7 +191,7 @@ BEGIN {
 	avar[1] = btxt; avar[2] = itxt
 	for (k in avar) {
 		mark = (k == 1) ? "\\fB" : "\\fI"
-		split(avar[k], tt, "§")
+		split(avar[k], tt, "Â§")
 		for (i in tt)
 			if (tt[i] != "")
 				subwords["\\<" tt[i] "\\>"] = mark tt[i] "\\fP"
