@@ -180,7 +180,7 @@ $1 == "/**" && $2 ~ /^[0-9]/ {
 			}
 		}
 	}
-	print title "." sect > "/dev/stderr"
+	print title "." sect > "/dev/stdout"
 	if (nogen) {
 		name = synop = desc = sect = ""
 		next
