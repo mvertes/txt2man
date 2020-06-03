@@ -1,6 +1,6 @@
 # Makefile
 prefix ?= /usr/local
-version = txt2man-1.6.0
+version = txt2man-1.7.0
 BIN = src2man bookman txt2man
 MAN1 = src2man.1 txt2man.1 bookman.1
 
