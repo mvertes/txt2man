@@ -91,7 +91,7 @@ shift $(($OPTIND - 1))
 			exit 1
 			}
 
-{ ps2pdf 2>&1 | grep Usage ; } > /dev/null 2> /dev/null || {
+ps2pdf 2>&1 | grep -q Usage || {
 			printf "ERROR: You need install ghostscript.\n" >&2
 			exit 1
 			}
