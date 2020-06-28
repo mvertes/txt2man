@@ -86,7 +86,7 @@ done
 shift $(($OPTIND - 1))
 
 # Check for dependencies
-{ echo ok | groff -ms ; } > /dev/null 2> /dev/null || {
+ groff -ms /dev/null || {
 			printf "ERROR: You need install groff.\n" >&2
 			exit 1
 			}
