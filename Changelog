@@ -1,3 +1,12 @@
+txt2man-1.7.1   28-jun-2020
+
+* txt2man: remove ksh check (@eribertomota)
+* src2man: make it compliant with gawk >= 5.0.1 (@eribertomota)
+* txt2man: allow punctuation characters in section names
+* txt2man: allow display blocks starting with a number
+* *man: check for dependencies (@eribertomota)
+* build: make build reproducible
+
 txt2man-1.7.0	03-jun-2020
 
 * bookman: added missing space (@marxst)

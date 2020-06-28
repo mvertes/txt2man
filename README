@@ -12,6 +12,6 @@ INSTALL
   or
       make install prefix=path
 
-Send comments, suggestions and bug reports to mvertes@free.fr
+Issues and pull requests should be opened at https://github.com/mvertes/txt2man.
 
 -- Marc Vertes

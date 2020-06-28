@@ -1,7 +1,7 @@
 # Makefile
 prefix ?= /usr/local
-version = txt2man-1.7.0
-date = 2020-06-03
+version = txt2man-1.7.1
+date = 2020-06-28
 BIN = src2man bookman txt2man
 MAN1 = src2man.1 txt2man.1 bookman.1
 
