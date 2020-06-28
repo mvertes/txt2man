@@ -85,6 +85,17 @@ do
 done
 shift $(($OPTIND - 1))
 
+# Check for dependencies
+{ echo ok | groff -ms ; } > /dev/null 2> /dev/null || {
+			printf "ERROR: You need install groff.\n" >&2
+			exit 1
+			}
+
+{ ps2pdf 2>&1 | grep Usage ; } > /dev/null 2> /dev/null || {
+			printf "ERROR: You need install ghostscript.\n" >&2
+			exit 1
+			}
+
 # Compatibility wrapper for BSD/GNU date, for parsing dates
 if date -j >/dev/null 2>&1; then
   pdate() { date -u -j -f '@%s' "$@"; }
