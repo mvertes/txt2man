@@ -153,7 +153,7 @@ do
 	(I) itxt="$OPTARG§$itxt";;
 	(B) btxt="$OPTARG§$btxt";;
 	(T) post="groff -mandoc -Tlatin1 | ${PAGER:-more}";;
-	(X) post="groff -mandoc -X";;
+	(X) post="groff -mandoc -X -P-resolution -P100";;
 	(*) usage; exit;;
 	esac
 done
@@ -214,7 +214,7 @@ BEGIN {
 	# remove spaces in empty lines
 	sub(/^ +$/,"")
 }
-/^[[:upper:][:space:][:punct:]]+$/ {
+/^[[:upper:][:space:][:digit:][:punct:]]+$/ {
 	# Section header
 	if ((in_bd + 0) == 1) {
 		in_bd = 0
@@ -249,7 +249,7 @@ BEGIN {
 		pnzls = ls
 	match($0, /[^ ]/)
 	ls = RSTART
-	if (pls == 0 && pnzls > 0 && ls > pnzls && $1 !~ /^[0-9\-\*o]\.*$/) {
+	if (in_bd == 0 && pls == 0 && pnzls > 0 && ls > pnzls && $1 !~ /^[\-\*o]$|^[0-9]+\.$/) {
 		# example display block
 		if (prevblankline == 1) {
 			print ".PP"
