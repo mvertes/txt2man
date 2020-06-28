@@ -1,5 +1,4 @@
 #!/bin/sh
-test "$HOME" = ~ || exec ksh $0 "$@"    # try ksh if sh too old (not yet POSIX)
 
 # Copyright (C) 2001, 2002, 2003 Marc Vertes
 
