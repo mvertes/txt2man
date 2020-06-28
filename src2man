@@ -177,12 +177,12 @@ $1 == "/**" && $2 ~ /^[0-9]/ {
 				getline
 				synop = synop " " $0
 			}
-			if ($0 ~/\)[ \t{}\;]*$/) {
+			if ($0 ~/\)[ \t{};]*$/) {
 				sub(/{[^}]}/, "", synop)
 				sub(/[ \t]*$/, "", synop)
 				if (found == "ok")
 					synop = "#include \"" inc "\"\n" synop
-				if (synop !~ /\;$/)
+				if (synop !~ /;$/)
 					synop = synop ";"
 				break
 			}
