@@ -1,6 +1,7 @@
 # Makefile
 prefix ?= /usr/local
 version = txt2man-1.7.0
+date = 2020-06-03
 BIN = src2man bookman txt2man
 MAN1 = src2man.1 txt2man.1 bookman.1
 
@@ -14,7 +15,7 @@ install: $(MAN1)
 clean:
 	rm -f *.1 *.txt *.ps *.pdf *.html
 
-%.1:%.txt; ./txt2man -s 1 -t $* -r $(version) $< > $@
+%.1:%.txt; ./txt2man -s 1 -t $* -r $(version) -d $(date) $< > $@
 %.txt:%; ./$< -h 2>&1 > $@
 %.html:%.1; rman -f HTML $< > $@
 %.ps:%.1; groff -man $< > $@
