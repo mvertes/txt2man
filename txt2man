@@ -296,7 +296,7 @@ section == "SYNOPSIS" {
 		for (i = 2; i <= NF; i++) {
 			a = $i
 			gsub(/[\[\]\|]/, "", a)
-			if (a ~ /^[^\-]/)
+			if (a ~ /^[^\-\(]/)
 				subwords["\\<" a "\\>"] = "\\fI" a "\\fP"
 		}
 	} else if (type["SYNOPSIS"] == "fct") {
