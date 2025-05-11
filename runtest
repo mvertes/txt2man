@@ -1,0 +1,24 @@
+#!/bin/sh
+
+run() {
+	./txt2man -d "May 2025" "$1" >out
+	diff -u "${1%.txt}.wanted" out
+}
+
+trap "rm -f out" EXIT
+nerr=0
+
+for t in test/*.txt; do
+	if run "$t"; then
+		echo "$t: PASS"
+	else
+		echo "$t: FAIL"
+		nerr=$((nerr + 1))
+	fi
+done
+
+if [ $nerr != 0 ]; then
+	echo "$nerr tests FAIL"
+	exit 1
+fi
+	

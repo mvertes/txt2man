@@ -1,0 +1,15 @@
+INITIAL
+ A test only
+OPTIONS
+ option1  this is an option
+ option2  this is an option
+EXAMPLE
+ A block:
+
+    ORD  DAY  WHAT
+    ---------------------
+    1    15   Do anything
+    2    30   Do nothing
+
+ The end
+ is here.

@@ -1,0 +1,106 @@
+NAME
+  txt2man - convert flat ASCII text to man page format
+SYNOPSIS
+  txt2man [-hpTX] [-t mytitle] [-P pname] [-r rel] [-s sect]
+          [-v vol] [-I txt] [-B txt] [-d date] [ifile]
+DESCRIPTION
+  txt2man converts the input text into nroff/troff standard man(7)
+  macros used to format Unix manual pages. Nice pages can be generated
+  specially for commands (section 1 or 8) or for C functions reference
+  (sections 2, 3), with the ability to recognize and format command and
+  function names, flags, types and arguments.
+
+  txt2man is also able to recognize and format sections, paragraphs,
+  lists (standard, numbered, description, nested), cross references and
+  literal display blocks.
+
+  If input file ifile is omitted, standard input is used. Result is
+  displayed on standard output.
+
+  Here is how text patterns are recognized and processed:
+  Sections    These headers are defined by a line in upper case, starting
+              column 1. If there is one or more leading spaces, a
+              sub-section will be generated instead. Optionally, the
+              Section name can be preceded by a blank line. This is useful
+              for a better visualization of the source text to be used to
+              generate the manpage.
+  Paragraphs  They must be separated by a blank line, and left aligned.
+              Alternatively two blank spaces can be used to produce the
+              same result. This option will provide a better visualization
+              of the source text to be used to generate the manpage.
+  Tag list    The item definition is separated from the item description
+              by at least 2 blank spaces, even before a new line, if
+              definition is too long. Definition will be emphasized
+              by default.
+  Bullet list  
+              Bullet list items are defined by the first word being "-"
+              or "*" or "o".
+  Enumerated list  
+              The first word must be a number followed by a dot.
+  Literal display blocks  
+              This paragraph type is used to display unmodified text,
+              for example source code. It must be separated by a blank
+              line and be indented by a TAB. It is primarily used to format
+              unmodified source code. It will be printed using fixed font
+              whenever possible (troff).
+  Cross references  
+              A cross reference (another man page) is defined by a word
+              followed by a number in parenthesis.
+
+  Special sections:
+  NAME      The function or command name and short description are set in
+            this section.
+  SYNOPSIS  This section receives a special treatment to identify command
+            name, flags and arguments, and propagate corresponding
+            attributes later in the text. If a C like function is recognized
+            (word immediately followed by an open parenthesis), txt2man will
+            print function name in bold font, types in normal font, and
+            variables in italic font. The whole section will be printed using
+            a fixed font family (courier) whenever possible (troff).
+
+  It is a good practice to embed documentation into source code, by using
+  comments or constant text variables. txt2man allows one to do that, keeping
+  the document source readable, usable even without further formatting
+  (i.e. for online help) and easy to write. The result is high quality
+  and standard complying document.
+OPTIONS
+  -h          The option -h displays help.
+  -d date     Set date in header. Defaults to current date.
+  -P pname    Set pname as project name in header. Default to uname -s.
+  -p          Probe title, section name and volume.
+  -t mytitle  Set mytitle as title of generated man page.
+  -r rel      Set rel as project name and release.
+  -s sect     Set sect as section in heading, usually a value from 1 to 8.
+  -v vol      Set vol as volume name, i.e. "Unix user 's manual".
+  -I txt      Italicize txt in output. Can be specified more than once.
+  -B txt      Emphasize (bold) txt in output. Can be specified more than once.
+  -T          Text result previewing using PAGER, usually more(1).
+  -X          X11 result previewing using gxditview(1).
+ENVIRONMENT
+  PAGER              name of paging command, usually more(1), or less(1). If not set
+                     falls back to more(1).
+  SOURCE_DATE_EPOCH  Unix timestamp that is used for date in header instead
+                     of current date.
+EXAMPLES
+  Try this command to format this text itself:
+
+    $ txt2man -h 2>&1 | txt2man -T
+
+  The following command will generate a manpage level 1 to foo-1.1.0 program,
+  from foo.txt file, used as source code to previously mentioned manpage:
+
+    $ txt2man -d "15 May 2016" -t foo -r foo-1.1.0 -s 1 -v "show stars on screen" foo.txt > foo.1
+HINTS
+  To obtain an overall good formatting of output document, keep paragraphs
+  indented correctly. If you have unwanted bold sections, search for
+  multiple spaces between words, which are used to identify a tag list
+  (term followed by a description). Choose also carefully the name of
+  command line or function parameters, as they will be emphasized each
+  time they are encountered in the document.
+SEE ALSO
+  man(1), mandoc(7), rman(1), groff(1), more(1), gxditview(1), troff(1).
+BUGS
+  - Automatic probe (-p option) works only if input is a regular file (i.e.
+  not stdin).
+AUTHOR
+  Marc Vertes <mvertes@free.fr>

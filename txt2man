@@ -122,7 +122,7 @@ HINTS
   command line or function parameters, as they will be emphasized each
   time they are encountered in the document.
 SEE ALSO
-  man(1), mandoc(7), rman(1), groff(1), more(1), gxditview(1), troff(1).
+  man(1), mandoc(7), groff(1), more(1), gxditview(1), troff(1).
 BUGS
   - Automatic probe (-p option) works only if input is a regular file (i.e.
   not stdin).
@@ -216,8 +216,8 @@ BEGIN {
 }
 # XXX: In gawk-5.31+, /^[:space:]/ generates a spurious warning.
 # Replace it with hexa equivalent until gawk fixes its regression.
-# /^[:space:]*[[:upper:][:digit:]]+[[:upper:][:space:][:digit:][:punct:]]+$/ {
-/^[\x09-\x0D\x20]*[[:upper:][:digit:]]+[[:upper:][:space:][:digit:][:punct:]]+$/ {
+#/^[:space:]*[[:upper:][:digit:]]+[[:upper:][:space:][:digit:][:punct:]]+$/ {
+/^[[:upper:][:digit:]]+[[:upper:][:space:][:digit:][:punct:]]+$/ {
 	# Section header
 	if ((in_bd + 0) == 1) {
 		in_bd = 0
@@ -270,7 +270,7 @@ BEGIN {
 	if (section == "SYNOPSIS")
 		;
 	else if (ls != 0 && ls < eoff) {
-		# End of litteral display block
+		# End of literal display block
 		in_bd = 0
 		print ".fam T\n.fi"
 	} else { print; next }
