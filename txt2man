@@ -214,9 +214,6 @@ BEGIN {
 	# remove spaces in empty lines
 	sub(/^ +$/,"")
 }
-# XXX: In gawk-5.31+, /^[:space:]/ generates a spurious warning.
-# Replace it with hexa equivalent until gawk fixes its regression.
-#/^[:space:]*[[:upper:][:digit:]]+[[:upper:][:space:][:digit:][:punct:]]+$/ {
 /^[[:upper:][:digit:]]+[[:upper:][:space:][:digit:][:punct:]]+$/ {
 	# Section header
 	if ((in_bd + 0) == 1) {
